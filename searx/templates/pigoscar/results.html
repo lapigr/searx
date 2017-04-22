@@ -27,12 +27,18 @@
                 {% endfor %}
             </div>
             {% endif %}
-
+	
             {% if answers %}
-            {% for answer in answers %}
-            <div class="result well">
-                <span>{{ answer }}</span>
-            </div>
+	    {% for answer in answers %}
+	    <!--if results.encode == True -->
+	            	<div class="result well">
+			    	<a href="https://tools.usps.com/go/TrackConfirmAction?&tLabels={{ answer }}">USPS</a> 
+	           	</div>
+			<!-- else %}
+	  		<div class="result well">
+				<span>{ answer }} + 'test'  + { results.encode }}</span>
+				</div> -->
+				<!--% endif %}-->
             {% endfor %}
             {% endif %}
 

@@ -26,7 +26,8 @@ from searx.plugins import (doai_rewrite,
                            self_info,
                            search_on_category_select,
                            tracker_url_remover,
-                           vim_hotkeys)
+                           vim_hotkeys,
+                           pigmods)
 
 required_attrs = (('name', (str, unicode)),
                   ('description', (str, unicode)),
@@ -83,3 +84,4 @@ plugins.register(self_info)
 plugins.register(search_on_category_select)
 plugins.register(tracker_url_remover)
 plugins.register(vim_hotkeys)
+plugins.register(pigmods)

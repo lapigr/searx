@@ -127,6 +127,7 @@ class ResultContainer(object):
         self.infoboxes = []
         self.suggestions = set()
         self.answers = set()
+        self.encode = False
         self.corrections = set()
         self._number_of_results = []
         self._ordered = False
@@ -140,6 +141,9 @@ class ResultContainer(object):
                 results.remove(result)
             elif 'answer' in result:
                 self.answers.add(result['answer'])
+                results.remove(result)
+            elif 'encode' in result:
+                self.encode = True
                 results.remove(result)
             elif 'correction' in result:
                 self.corrections.add(result['correction'])

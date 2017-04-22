@@ -39,15 +39,9 @@ def post_search(request, search):
 #            ip = request.remote_addr
 #        search.result_container.answers.clear()
 #        search.result_container.answers.add(ip)
-#    if p.match(search.search_query.query):
-#        ua = "<a href='https://google.com/#safe=off&q=" + search.search_query.query + "'/>google</a>"
-#        search.result_container.answers.clear()
-#        search.result_container.answers.add(ua)
-    return True
-
-
-def on_result(request, search, result):
     if p.match(search.search_query.query):
-        result['url'] = 'https://google.com/&q=' + search.search_query.query
-        result['parsed_url'] = urlparse(result['url'])
+        link = search.search_query.query
+        search.result_container.answers.clear()
+        search.result_container.encode = True
+        search.result_container.answers.add(link)
     return True
