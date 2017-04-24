@@ -31,17 +31,7 @@ p = re.compile('[0-9]{20,}')
 def post_search(request, search):
     if search.search_query.pageno > 1:
         return True
-#    if search.search_query.query == 'ip':
-#        x_forwarded_for = request.headers.getlist("X-Forwarded-For")
-#        if x_forwarded_for:
-#            ip = x_forwarded_for[0]
-#        else:
-#            ip = request.remote_addr
-#        search.result_container.answers.clear()
-#        search.result_container.answers.add(ip)
     if p.match(search.search_query.query):
-        link = search.search_query.query
         search.result_container.answers.clear()
-        search.result_container.encode = True
-        search.result_container.answers.add(link)
+        search.result_container.answers.add('track')
     return True

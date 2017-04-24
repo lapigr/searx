@@ -334,7 +334,6 @@ class Search(object):
         if answerers_results:
             for results in answerers_results:
                 self.result_container.extend('answer', results)
-                self.result_container.extend('encode', 'url')
             return self.result_container
 
         # init vars
