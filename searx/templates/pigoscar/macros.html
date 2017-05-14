@@ -6,7 +6,7 @@
 <!-- Draw favicon -->
 <!-- TODO: using url_for methode -->
 {% macro draw_favicon(favicon) -%}
-    <img width="32" height="32" class="favicon" src="static/themes/pigoscar/img/icons/{{ favicon }}.png" alt="{{ favicon }}" />
+    <img width="16" height="16" class="favicon" src="static/themes/pigoscar/img/icons/{{ favicon }}.png" alt="{{ favicon }}" />
 {%- endmacro %}
 
 {%- macro result_link(url, title, classes='') -%}
@@ -15,7 +15,13 @@
 
 <!-- Draw result header -->
 {% macro result_header(result, favicons) -%}
-<h4 class="result_header">{% if result.engine~".png" in favicons %}{{ draw_favicon(result.engine) }} {% endif %}{{ result_link(result.url, result.title|safe) }}</h4>
+<h4 class="result_header">{{ result_link(result.url, result.title|safe) }}</h4>
+{%- endmacro %}
+
+<!-- Draw embedable video header -->
+{% macro result_video_header(result, favicons) -%}
+<h4 class="result_header"><a class="text-info btn-collapse collapsed cursor-pointer media-loader disabled_if_nojs result_header" data-toggle="collapse" data-target="#result-video-{{ index }}">
+{{ icon('film') }} {{ _(' ') }}</a>{{ result_link(result.url, result.title|safe) }}</h4>
 {%- endmacro %}
 
 <!-- Draw result sub header -->
@@ -28,7 +34,9 @@
 <!-- Draw result footer -->
 {% macro result_footer(result) -%}
     <div class="clearfix"></div>
+    
     <div class="pull-right">
+    {% if result.engine~".png" in favicons %}{{ draw_favicon(result.engine) }} {% endif %}
     {% for engine in result.engines %}
         <span class="label label-default">{{ engine }}</span>
     {% endfor %}
@@ -43,6 +51,7 @@
 <!-- Draw result footer -->
 {% macro result_footer_rtl(result) -%}
     <div class="clearfix"></div>
+    {% if result.engine~".png" in favicons %}{{ draw_favicon(result.engine) }} {% endif %}
     {% for engine in result.engines %}
         <span class="label label-default">{{ engine }}</span>
     {% endfor %}

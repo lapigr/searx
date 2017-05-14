@@ -234,6 +234,10 @@ class ResultContainer(object):
         for result in self._merged_results:
             score = result_score(result)
             result['score'] = score
+
+            #TODO engine+infobox
+            if "wikia" in result['url']:
+                result['score'] += 1
             with RLock():
                 for result_engine in result['engines']:
                     engines[result_engine].stats['score_count'] += score
