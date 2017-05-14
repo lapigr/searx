@@ -8,11 +8,14 @@ robot_output.xml
 robot_report.html
 test_basic/
 setup.cfg
-
+*.yml
 *.pyc
 */*.pyc
 *~
-
+.cache/
+.pip/
+.rnd
 node_modules/
+searx-ve/
 
 .tx/
