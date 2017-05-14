@@ -8,7 +8,7 @@ robot_output.xml
 robot_report.html
 test_basic/
 setup.cfg
-searx/settings.yml
+**.yml
 *.pyc
 */*.pyc
 *~
