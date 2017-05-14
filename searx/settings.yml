@@ -1,6 +1,6 @@
 general:
     debug : False # Debug mode, only for development
-    instance_name : "searx" # displayed name
+    instance_name : "Pigtown Search" # displayed name
 
 search:
     safe_search : 0 # Filter results. 0: None, 1: Moderate, 2: Strict
@@ -10,14 +10,14 @@ search:
 server:
     port : 8888
     bind_address : "127.0.0.1" # address to listen on
-    secret_key : "ultrasecretkey" # change this!
-    base_url : False # Set custom base_url. Possible values: False or "https://your.custom.host/location/"
+    secret_key : "cafd3d5e676621f1af86d51def528e1e"  
+    base_url : https://pigtown.news/searx/  # Set custom base_url. Possible values: False or "https://your.custom.host/location/"
     image_proxy : False # Proxying image results through searx
     http_protocol_version : "1.0"  # 1.0 and 1.1 are supported
 
 ui:
     themes_path : "" # Custom ui themes path - leave it blank if you didn't change
-    default_theme : oscar # ui theme
+    default_theme : pigoscar # ui theme
     default_locale : "" # Default interface locale - leave blank to detect from browser information or use codes from the 'locales' config section
 
 # searx supports result proxification using an external service: https://github.com/asciimoo/morty
@@ -30,7 +30,7 @@ outgoing: # communication with search engines
     request_timeout : 2.0 # seconds
     useragent_suffix : "" # suffix of searx_useragent, could contain informations like an email address to the administrator
     pool_connections : 100 # Number of different hosts
-    pool_maxsize : 10 # Number of simultaneous requests by host
+    pool_maxsize : 12 # Number of simultaneous requests by host
 # uncomment below section if you want to use a proxy
 # see http://docs.python-requests.org/en/latest/user/advanced/#proxies
 # SOCKS proxies are also supported: see http://docs.python-requests.org/en/master/user/advanced/#socks

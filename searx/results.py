@@ -235,9 +235,10 @@ class ResultContainer(object):
             score = result_score(result)
             result['score'] = score
 
-            #TODO engine+infobox
-            if "wikia" in result['url']:
-                result['score'] += 1
+            # TODO engine+infobox
+            # scratch that, i'm thinkin a new settings field for urls to bring to top/highlight would be better
+            if ("runescape.wikia" in result['url'] or "pathofexile.gamepedia.com" in result['url']):
+                result['score'] += 2
             with RLock():
                 for result_engine in result['engines']:
                     engines[result_engine].stats['score_count'] += score
