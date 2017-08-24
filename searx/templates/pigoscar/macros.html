@@ -40,6 +40,7 @@
     {% for engine in result.engines %}
         <span class="label label-default">{{ engine }}</span>
     {% endfor %}
+    <small>{{ result_link("http://archive.is/?url=" + result.url, icon('link') + _('archive'), "text-info") }}</small>
     <small>{{ result_link("https://webcache.googleusercontent.com/search?q=cache:" + result.url, icon('link') + _('cached'), "text-info") }}</small>
     {% if proxify %}
     <small>{{ result_link(proxify(result.url), icon('sort') + _('proxied'), "text-info") }}</small>
