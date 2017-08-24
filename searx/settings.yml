@@ -16,14 +16,9 @@ server:
     http_protocol_version : "1.0"  # 1.0 and 1.1 are supported
 
 ui:
-<<<<<<< HEAD
-    themes_path : "" # Custom ui themes path - leave it blank if you didn't change
-    default_theme : pigoscar # ui theme
-=======
     static_path : "" # Custom static path - leave it blank if you didn't change
     templates_path : "" # Custom templates path - leave it blank if you didn't change
-    default_theme : oscar # ui theme
->>>>>>> 700baf2178d5970cef7cd1efaf24522a458a6b55
+    default_theme : pigoscar # ui theme
     default_locale : "" # Default interface locale - leave blank to detect from browser information or use codes from the 'locales' config section
 
 # searx supports result proxification using an external service: https://github.com/asciimoo/morty
