@@ -16,8 +16,9 @@ along with searx. If not, see < http://www.gnu.org/licenses/ >.
 (C) 2013- by Adam Tauber, <asciimoo@gmail.com>
 '''
 
-from os.path import realpath, dirname
 import sys
+import threading
+from os.path import realpath, dirname
 from flask_babel import gettext
 from operator import itemgetter
 from json import loads
@@ -72,12 +73,11 @@ def load_engine(engine_data):
             if engine_data['categories'] == 'none':
                 engine.categories = []
             else:
-                engine.categories = map(
-                    str.strip, engine_data['categories'].split(','))
+                engine.categories = list(map(str.strip, engine_data['categories'].split(',')))
             continue
         setattr(engine, param_name, engine_data[param_name])
 
-    for arg_name, arg_value in engine_default_args.iteritems():
+    for arg_name, arg_value in engine_default_args.items():
         if not hasattr(engine, arg_name):
             setattr(engine, arg_name, arg_value)
 
@@ -85,6 +85,8 @@ def load_engine(engine_data):
     for engine_attr in dir(engine):
         if engine_attr.startswith('_'):
             continue
+        if engine_attr == 'inactive' and getattr(engine, engine_attr) is True:
+            return None
         if getattr(engine, engine_attr) is None:
             logger.error('Missing engine config attribute: "{0}.{1}"'
                          .format(engine.name, engine_attr))
@@ -215,8 +217,24 @@ def get_engines_stats():
     ]
 
 
-def initialize_engines(engine_list):
+def load_engines(engine_list):
+    global engines
+    engines.clear()
     for engine_data in engine_list:
         engine = load_engine(engine_data)
         if engine is not None:
             engines[engine.name] = engine
+    return engines
+
+
+def initialize_engines(engine_list):
+    load_engines(engine_list)
+    for engine in engines.items():
+        if hasattr(engine, 'init'):
+            init_fn = getattr(engine, engine_attr)
+
+            def engine_init():
+                init_fn()
+                logger.debug('%s engine initialized', engine_data['name'])
+            logger.debug('Starting background initialization of %s engine', engine_data['name'])
+            threading.Thread(target=engine_init).start()

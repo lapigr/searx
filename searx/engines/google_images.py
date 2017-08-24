@@ -11,9 +11,9 @@
 """
 
 from datetime import date, timedelta
-from urllib import urlencode
 from json import loads
 from lxml import html
+from searx.url_utils import urlencode
 
 
 # engine dependent config
@@ -74,7 +74,7 @@ def response(resp):
     for result in dom.xpath('//div[@data-ved]'):
 
         try:
-            metadata = loads(''.join(result.xpath('./div[@class="rg_meta"]/text()')))
+            metadata = loads(''.join(result.xpath('./div[contains(@class, "rg_meta")]/text()')))
         except:
             continue
 

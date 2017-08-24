@@ -1,5 +1,6 @@
 from searx import settings, autocomplete
 from searx.languages import language_codes as languages
+from searx.url_utils import urlencode
 
 
 COOKIE_MAX_AGE = 60 * 60 * 24 * 365 * 5  # 5 years
@@ -23,7 +24,7 @@ class Setting(object):
     def __init__(self, default_value, **kwargs):
         super(Setting, self).__init__()
         self.value = default_value
-        for key, value in kwargs.iteritems():
+        for key, value in kwargs.items():
             setattr(self, key, value)
 
         self._post_init()
@@ -38,7 +39,7 @@ class Setting(object):
         return self.value
 
     def save(self, name, resp):
-        resp.set_cookie(name, bytes(self.value), max_age=COOKIE_MAX_AGE)
+        resp.set_cookie(name, self.value, max_age=COOKIE_MAX_AGE)
 
 
 class StringSetting(Setting):
@@ -133,7 +134,7 @@ class MapSetting(Setting):
 
     def save(self, name, resp):
         if hasattr(self, 'key'):
-            resp.set_cookie(name, bytes(self.key), max_age=COOKIE_MAX_AGE)
+            resp.set_cookie(name, self.key, max_age=COOKIE_MAX_AGE)
 
 
 class SwitchableSetting(Setting):
@@ -194,7 +195,7 @@ class EnginesSetting(SwitchableSetting):
     def _post_init(self):
         super(EnginesSetting, self)._post_init()
         transformed_choices = []
-        for engine_name, engine in self.choices.iteritems():
+        for engine_name, engine in self.choices.items():
             for category in engine.categories:
                 transformed_choice = dict()
                 transformed_choice['default_on'] = not engine.disabled
@@ -232,7 +233,7 @@ class PluginsSetting(SwitchableSetting):
 
 
 class Preferences(object):
-    """Stores, validates and saves preferences to cookies"""
+    """Validates and saves preferences to cookies"""
 
     def __init__(self, themes, categories, engines, plugins):
         super(Preferences, self).__init__()
@@ -241,26 +242,47 @@ class Preferences(object):
                                    'language': SearchLanguageSetting(settings['search']['language'],
                                                                      choices=LANGUAGE_CODES),
                                    'locale': EnumStringSetting(settings['ui']['default_locale'],
-                                                               choices=settings['locales'].keys() + ['']),
+                                                               choices=list(settings['locales'].keys()) + ['']),
                                    'autocomplete': EnumStringSetting(settings['search']['autocomplete'],
-                                                                     choices=autocomplete.backends.keys() + ['']),
+                                                                     choices=list(autocomplete.backends.keys()) + ['']),
                                    'image_proxy': MapSetting(settings['server']['image_proxy'],
                                                              map={'': settings['server']['image_proxy'],
                                                                   '0': False,
-                                                                  '1': True}),
+                                                                  '1': True,
+                                                                  'True': True,
+                                                                  'False': False}),
                                    'method': EnumStringSetting('POST', choices=('GET', 'POST')),
                                    'safesearch': MapSetting(settings['search']['safe_search'], map={'0': 0,
                                                                                                     '1': 1,
                                                                                                     '2': 2}),
                                    'theme': EnumStringSetting(settings['ui']['default_theme'], choices=themes),
-                                   'results_on_new_tab': MapSetting(False, map={'0': False, '1': True})}
+                                   'results_on_new_tab': MapSetting(False, map={'0': False,
+                                                                                '1': True,
+                                                                                'False': False,
+                                                                                'True': True})}
 
         self.engines = EnginesSetting('engines', choices=engines)
         self.plugins = PluginsSetting('plugins', choices=plugins)
         self.unknown_params = {}
 
-    def parse_cookies(self, input_data):
-        for user_setting_name, user_setting in input_data.iteritems():
+    def get_as_url_params(self):
+        settings_kv = {}
+        for k, v in self.key_value_settings.items():
+            if isinstance(v, MultipleChoiceSetting):
+                settings_kv[k] = ','.join(v.get_value())
+            else:
+                settings_kv[k] = v.get_value()
+
+        settings_kv['disabled_engines'] = ','.join(self.engines.disabled)
+        settings_kv['enabled_engines'] = ','.join(self.engines.enabled)
+
+        settings_kv['disabled_plugins'] = ','.join(self.plugins.disabled)
+        settings_kv['enabled_plugins'] = ','.join(self.plugins.enabled)
+
+        return urlencode(settings_kv)
+
+    def parse_dict(self, input_data):
+        for user_setting_name, user_setting in input_data.items():
             if user_setting_name in self.key_value_settings:
                 self.key_value_settings[user_setting_name].parse(user_setting)
             elif user_setting_name == 'disabled_engines':
@@ -274,7 +296,7 @@ class Preferences(object):
         disabled_engines = []
         enabled_categories = []
         disabled_plugins = []
-        for user_setting_name, user_setting in input_data.iteritems():
+        for user_setting_name, user_setting in input_data.items():
             if user_setting_name in self.key_value_settings:
                 self.key_value_settings[user_setting_name].parse(user_setting)
             elif user_setting_name.startswith('engine_'):
@@ -295,7 +317,7 @@ class Preferences(object):
             return self.key_value_settings[user_setting_name].get_value()
 
     def save(self, resp):
-        for user_setting_name, user_setting in self.key_value_settings.iteritems():
+        for user_setting_name, user_setting in self.key_value_settings.items():
             user_setting.save(user_setting_name, resp)
         self.engines.save(resp)
         self.plugins.save(resp)

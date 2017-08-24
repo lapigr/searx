@@ -16,8 +16,14 @@ server:
     http_protocol_version : "1.0"  # 1.0 and 1.1 are supported
 
 ui:
+<<<<<<< HEAD
     themes_path : "" # Custom ui themes path - leave it blank if you didn't change
     default_theme : pigoscar # ui theme
+=======
+    static_path : "" # Custom static path - leave it blank if you didn't change
+    templates_path : "" # Custom templates path - leave it blank if you didn't change
+    default_theme : oscar # ui theme
+>>>>>>> 700baf2178d5970cef7cd1efaf24522a458a6b55
     default_locale : "" # Default interface locale - leave blank to detect from browser information or use codes from the 'locales' config section
 
 # searx supports result proxification using an external service: https://github.com/asciimoo/morty
@@ -79,6 +85,10 @@ engines:
   - name : bing news
     engine : bing_news
     shortcut : bin
+
+  - name : bing videos
+    engine : bing_videos
+    shortcut : biv
 
   - name : bitbucket
     engine : xpath
@@ -166,6 +176,12 @@ engines:
     shortcut : ddg
     disabled : True
 
+  - name : duckduckgo images
+    engine : duckduckgo_images
+    shortcut : ddi
+    timeout: 3.0
+    disabled : True
+
   - name : etymonline
     engine : xpath
     paging : True
@@ -208,6 +224,18 @@ engines:
 # Or you can use the html non-stable engine, activated by default
     engine : flickr_noapi
 
+  - name : free software directory
+    engine : mediawiki
+    shortcut : fsd
+    categories : it
+    base_url : https://directory.fsf.org/
+    number_of_results : 5
+# what part of a page matches the query string: title, text, nearmatch
+# title - query matches title, text - query matches the text of page, nearmatch - nearmatch in title
+    search_type : title
+    timeout : 5.0
+    disabled : True
+
   - name : frinkiac
     engine : frinkiac
     shortcut : frk
@@ -246,6 +274,10 @@ engines:
   - name : google news
     engine : google_news
     shortcut : gon
+
+  - name : google videos
+    engine : google_videos
+    shortcut : gov
 
   - name : google scholar
     engine : xpath

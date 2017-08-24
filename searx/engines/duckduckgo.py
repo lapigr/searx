@@ -13,11 +13,11 @@
  @todo        rewrite to api
 """
 
-from urllib import urlencode
 from lxml.html import fromstring
-from requests import get
 from json import loads
 from searx.engines.xpath import extract_text
+from searx.poolrequests import get
+from searx.url_utils import urlencode
 
 # engine dependent config
 categories = ['general']
@@ -41,49 +41,53 @@ title_xpath = './/a[@class="result__a"]'
 content_xpath = './/a[@class="result__snippet"]'
 
 
+# match query's language to a region code that duckduckgo will accept
+def get_region_code(lang, lang_list=None):
+    # custom fixes for languages
+    if lang == 'all':
+        region_code = None
+    elif lang[:2] == 'ja':
+        region_code = 'jp-jp'
+    elif lang[:2] == 'sl':
+        region_code = 'sl-sl'
+    elif lang == 'zh-TW':
+        region_code = 'tw-tzh'
+    elif lang == 'zh-HK':
+        region_code = 'hk-tzh'
+    elif lang[-2:] == 'SA':
+        region_code = 'xa-' + lang.split('-')[0]
+    elif lang[-2:] == 'GB':
+        region_code = 'uk-' + lang.split('-')[0]
+    else:
+        region_code = lang.split('-')
+        if len(region_code) == 2:
+            # country code goes first
+            region_code = region_code[1].lower() + '-' + region_code[0].lower()
+        else:
+            # tries to get a country code from language
+            region_code = region_code[0].lower()
+            for lc in (lang_list or supported_languages):
+                lc = lc.split('-')
+                if region_code == lc[0]:
+                    region_code = lc[1].lower() + '-' + lc[0].lower()
+                    break
+    return region_code
+
+
 # do search-request
 def request(query, params):
     if params['time_range'] and params['time_range'] not in time_range_dict:
         return params
 
-    offset = 30 + (params['pageno'] - 1) * 50
-    dc_param = offset + 1
+    offset = (params['pageno'] - 1) * 30
 
-    # custom fixes for languages
-    if params['language'] == 'all':
-        locale = None
-    elif params['language'][:2] == 'ja':
-        locale = 'jp-jp'
-    elif params['language'][:2] == 'sl':
-        locale = 'sl-sl'
-    elif params['language'] == 'zh-TW':
-        locale = 'tw-tzh'
-    elif params['language'] == 'zh-HK':
-        locale = 'hk-tzh'
-    elif params['language'][-2:] == 'SA':
-        locale = 'xa-' + params['language'].split('-')[0]
-    elif params['language'][-2:] == 'GB':
-        locale = 'uk-' + params['language'].split('-')[0]
-    else:
-        locale = params['language'].split('-')
-        if len(locale) == 2:
-            # country code goes first
-            locale = locale[1].lower() + '-' + locale[0].lower()
-        else:
-            # tries to get a country code from language
-            locale = locale[0].lower()
-            for lc in supported_languages:
-                lc = lc.split('-')
-                if locale == lc[0]:
-                    locale = lc[1].lower() + '-' + lc[0].lower()
-                    break
-
-    if locale:
+    region_code = get_region_code(params['language'])
+    if region_code:
         params['url'] = url.format(
-            query=urlencode({'q': query, 'kl': locale}), offset=offset, dc_param=dc_param)
+            query=urlencode({'q': query, 'kl': region_code}), offset=offset, dc_param=offset)
     else:
         params['url'] = url.format(
-            query=urlencode({'q': query}), offset=offset, dc_param=dc_param)
+            query=urlencode({'q': query}), offset=offset, dc_param=offset)
 
     if params['time_range'] in time_range_dict:
         params['url'] += time_range_url.format(range=time_range_dict[params['time_range']])

@@ -1,13 +1,13 @@
 from lxml import html
-from urllib import urlencode, unquote
-from urlparse import urlparse, urljoin
 from lxml.etree import _ElementStringResult, _ElementUnicodeResult
 from searx.utils import html_to_text
+from searx.url_utils import unquote, urlencode, urljoin, urlparse
 
 search_url = None
 url_xpath = None
 content_xpath = None
 title_xpath = None
+paging = False
 suggestion_xpath = ''
 results_xpath = ''
 
@@ -53,7 +53,7 @@ def extract_url(xpath_results, search_url):
     if url.startswith('//'):
         # add http or https to this kind of url //example.com/
         parsed_search_url = urlparse(search_url)
-        url = parsed_search_url.scheme + url
+        url = u'{0}:{1}'.format(parsed_search_url.scheme, url)
     elif url.startswith('/'):
         # fix relative url to the search engine
         url = urljoin(search_url, url)

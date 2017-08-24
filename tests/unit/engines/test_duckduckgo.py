@@ -18,6 +18,7 @@ class TestDuckduckgoEngine(SearxTestCase):
         self.assertIn(query, params['url'])
         self.assertIn('duckduckgo.com', params['url'])
         self.assertIn('ch-de', params['url'])
+        self.assertIn('s=0', params['url'])
 
         # when ddg uses non standard code
         dicto['language'] = 'en-GB'
@@ -90,8 +91,7 @@ class TestDuckduckgoEngine(SearxTestCase):
         "wt-wt":"All Results","ar-es":"Argentina","au-en":"Australia","at-de":"Austria","be-fr":"Belgium (fr)"
         }some more code..."""
         response = mock.Mock(text=js)
-        languages = duckduckgo._fetch_supported_languages(response)
-        self.assertEqual(type(languages), list)
+        languages = list(duckduckgo._fetch_supported_languages(response))
         self.assertEqual(len(languages), 5)
         self.assertIn('wt-WT', languages)
         self.assertIn('es-AR', languages)
