@@ -66,9 +66,11 @@ from searx.search import SearchWithPlugins, get_search_query_from_webapp
 from searx.query import RawTextQuery
 from searx.autocomplete import searx_bang, backends as autocomplete_backends
 from searx.plugins import plugins
+from searx.plugins.oa_doi_rewrite import get_doi_resolver
 from searx.preferences import Preferences, ValidationException
 from searx.answerers import answerers
 from searx.url_utils import urlencode, urlparse, urljoin
+from searx.utils import new_hmac
 
 # check if the pyopenssl package is installed.
 # It is needed for SSL connection without trouble, see #298
@@ -86,6 +88,9 @@ except:
 
 if sys.version_info[0] == 3:
     unicode = str
+    PY3 = True
+else:
+    PY3 = False
 
 # serve pages with HTTP/1.1
 from werkzeug.serving import WSGIRequestHandler
@@ -290,7 +295,7 @@ def image_proxify(url):
     if settings.get('result_proxy'):
         return proxify(url)
 
-    h = hmac.new(settings['server']['secret_key'], url.encode('utf-8'), hashlib.sha256).hexdigest()
+    h = new_hmac(settings['server']['secret_key'], url.encode('utf-8'))
 
     return '{0}?{1}'.format(url_for('image_proxy'),
                             urlencode(dict(url=url.encode('utf-8'), h=h)))
@@ -402,11 +407,15 @@ def pre_request():
     for k, v in request.args.items():
         if k not in request.form:
             request.form[k] = v
-    try:
-        preferences.parse_dict(request.form)
-    except Exception as e:
-        logger.exception('invalid settings')
-        request.errors.append(gettext('Invalid settings'))
+
+    if request.form.get('preferences'):
+        preferences.parse_encoded_data(request.form['preferences'])
+    else:
+        try:
+            preferences.parse_dict(request.form)
+        except Exception as e:
+            logger.exception('invalid settings')
+            request.errors.append(gettext('Invalid settings'))
 
     # request.user_plugins
     request.user_plugins = []
@@ -535,7 +544,8 @@ def index():
                                     'corrections': list(result_container.corrections),
                                     'infoboxes': result_container.infoboxes,
                                     'suggestions': list(result_container.suggestions),
-                                    'unresponsive_engines': list(result_container.unresponsive_engines)}),
+                                    'unresponsive_engines': list(result_container.unresponsive_engines)},
+                                   default=lambda item: list(item) if isinstance(item, set) else item),
                         mimetype='application/json')
     elif output_format == 'csv':
         csv = UnicodeWriter(StringIO())
@@ -598,7 +608,10 @@ def autocompleter():
     disabled_engines = request.preferences.engines.get_disabled()
 
     # parse query
-    raw_text_query = RawTextQuery(request.form.get('q', u'').encode('utf-8'), disabled_engines)
+    if PY3:
+        raw_text_query = RawTextQuery(request.form.get('q', b''), disabled_engines)
+    else:
+        raw_text_query = RawTextQuery(request.form.get('q', u'').encode('utf-8'), disabled_engines)
     raw_text_query.parse_query()
 
     # check if search query is set
@@ -690,6 +703,8 @@ def preferences():
                   shortcuts={y: x for x, y in engine_shortcuts.items()},
                   themes=themes,
                   plugins=plugins,
+                  doi_resolvers=settings['doi_resolvers'],
+                  current_doi_resolver=get_doi_resolver(request.args, request.preferences.get_value('doi_resolver')),
                   allowed_plugins=allowed_plugins,
                   theme=get_current_theme_name(),
                   preferences_url_params=request.preferences.get_as_url_params(),
@@ -704,7 +719,7 @@ def image_proxy():
     if not url:
         return '', 400
 
-    h = hmac.new(settings['server']['secret_key'], url, hashlib.sha256).hexdigest()
+    h = new_hmac(settings['server']['secret_key'], url)
 
     if h != request.args.get('h'):
         return '', 400
@@ -731,7 +746,7 @@ def image_proxy():
         logger.debug('image-proxy: wrong content-type: {0}'.format(resp.headers.get('content-type')))
         return '', 400
 
-    img = ''
+    img = b''
     chunk_counter = 0
 
     for chunk in resp.iter_content(1024 * 1024):
@@ -792,7 +807,8 @@ def opensearch():
 @app.route('/favicon.ico')
 def favicon():
     return send_from_directory(os.path.join(app.root_path,
-                                            'static/themes',
+                                            static_path,
+                                            'themes',
                                             get_current_theme_name(),
                                             'img'),
                                'favicon.png',
@@ -833,7 +849,10 @@ def config():
                     'autocomplete': settings['search']['autocomplete'],
                     'safe_search': settings['search']['safe_search'],
                     'default_theme': settings['ui']['default_theme'],
-                    'version': VERSION_STRING})
+                    'version': VERSION_STRING,
+                    'doi_resolvers': [r for r in search['doi_resolvers']],
+                    'default_doi_resolver': settings['default_doi_resolver'],
+                    })
 
 
 @app.errorhandler(404)

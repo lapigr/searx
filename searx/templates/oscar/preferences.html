@@ -1,7 +1,8 @@
-{% from 'oscar/macros.html' import preferences_item_header, preferences_item_header_rtl, preferences_item_footer, preferences_item_footer_rtl, checkbox_toggle %}
+{% from 'oscar/macros.html' import preferences_item_header, preferences_item_header_rtl, preferences_item_footer, preferences_item_footer_rtl, checkbox_toggle, support_toggle %}
 {% extends "oscar/base.html" %}
 {% block title %}{{ _('preferences') }} - {% endblock %}
 {% block content %}
+
 <div>
 
     <h1>{{ _('Preferences') }}</h1>
@@ -117,6 +118,18 @@
                             <option value="0" {% if not results_on_new_tab %}selected="selected"{% endif %}>{{ _('Off')}}</option>
                         </select>
                     {{ preferences_item_footer(info, label, rtl) }}
+
+                    {% set label = _('Open Access DOI resolver') %}
+                    {% set info = _('Redirect to open-access versions of publications when available (plugin required)') %}
+                    {{ preferences_item_header(info, label, rtl) }}
+                        <select class="form-control" id='doi_resolver' name='doi_resolver'>
+                            {% for doi_resolver_name,doi_resolver_url in doi_resolvers.items() %}
+                            <option value="{{ doi_resolver_name }}" {% if doi_resolver_name == current_doi_resolver %}selected="selected"{% endif %}>
+                                    {{ doi_resolver_name }} - {{ doi_resolver_url }}
+                            </option>
+                             {% endfor %}
+                         </select>
+                    {{ preferences_item_footer(info, label, rtl) }}
                 </div>
                 </fieldset>
             </div>
@@ -148,7 +161,7 @@
 				    <th>{{ _("Allow") }}</th>
 				    <th>{{ _("Engine name") }}</th>
 				    <th>{{ _("Shortcut") }}</th>
-				    <th>{{ _("Supports selected language") }}</th>
+				    <th>{{ _("Selected language") }}</th>
 				    <th>{{ _("SafeSearch") }}</th>
 				    <th>{{ _("Time range") }}</th>
 				    <th>{{ _("Avg. time") }}</th>
@@ -156,8 +169,9 @@
                                     {% else %}
 				    <th>{{ _("Max time") }}</th>
 				    <th>{{ _("Avg. time") }}</th>
+				    <th>{{ _("Time range") }}</th>
 				    <th>{{ _("SafeSearch") }}</th>
-				    <th>{{ _("Supports selected language") }}</th>
+				    <th>{{ _("Selected language") }}</th>
 				    <th>{{ _("Shortcut") }}</th>
 				    <th>{{ _("Engine name") }}</th>
 				    <th>{{ _("Allow") }}</th>
@@ -172,17 +186,18 @@
                                     </td>
                                     <th>{{ search_engine.name }}</th>
 				    <td class="name">{{ shortcuts[search_engine.name] }}</td>
-				    <td><input type="checkbox" {{ "checked" if current_language == 'all' or current_language in search_engine.supported_languages or current_language.split('-')[0] in search_engine.supported_languages else ""}} readonly="readonly" disabled="disabled"></td>
-				    <td><input type="checkbox" {{ "checked" if search_engine.safesearch==True else ""}} readonly="readonly" disabled="disabled"></td>
-				    <td><input type="checkbox" {{ "checked" if search_engine.time_range_support==True else ""}} readonly="readonly" disabled="disabled"></td>
-				    <td class="{{ 'danger' if stats[search_engine.name]['warn_time'] else '' }}">{{ 'N/A' if stats[search_engine.name].time==None else stats[search_engine.name].time }}</td>
-				    <td class="{{ 'danger' if stats[search_engine.name]['warn_timeout'] else '' }}">{{ search_engine.timeout }}</td>
-                                    {% else %}
-				    <td class="{{ 'danger' if stats[search_engine.name]['warn_timeout'] else '' }}">{{ search_engine.timeout }}</td>
-				    <td class="{{ 'danger' if stats[search_engine.name]['warn_time'] else '' }}">{{ 'N/A' if stats[search_engine.name].time==None else stats[search_engine.name].time }}</td>
-				    <td><input type="checkbox" {{ "checked" if search_engine.safesearch==True else ""}} readonly="readonly" disabled="disabled"></td>
-				    <td><input type="checkbox" {{ "checked" if current_language == 'all' or current_language in search_engine.supported_languages or current_language.split('-')[0] in search_engine.supported_languages else ""}} readonly="readonly" disabled="disabled"></td>
-				    <td>{{ shortcuts[search_engine.name] }}</td>
+					<td>{{ support_toggle(current_language == 'all' or current_language in search_engine.supported_languages or current_language.split('-')[0] in search_engine.supported_languages) }}</td>
+					<td>{{ support_toggle(search_engine.safesearch==True) }}</td>
+					<td>{{ support_toggle(search_engine.time_range_support==True) }}</td>
+					<td class="{{ 'danger' if stats[search_engine.name]['warn_time'] else '' }}">{{ 'N/A' if stats[search_engine.name].time==None else stats[search_engine.name].time }}</td>
+					<td class="{{ 'danger' if stats[search_engine.name]['warn_timeout'] else '' }}">{{ search_engine.timeout }}</td>
+									{% else %}
+					<td class="{{ 'danger' if stats[search_engine.name]['warn_timeout'] else '' }}">{{ search_engine.timeout }}</td>
+					<td class="{{ 'danger' if stats[search_engine.name]['warn_time'] else '' }}">{{ 'N/A' if stats[search_engine.name].time==None else stats[search_engine.name].time }}</td>
+					<td>{{ support_toggle(search_engine.time_range_support==True) }}</td>
+					<td>{{ support_toggle(search_engine.safesearch==True) }}</td>
+					<td>{{ support_toggle(current_language == 'all' or current_language in search_engine.supported_languages or current_language.split('-')[0] in search_engine.supported_languages) }}</td>
+					<td>{{ shortcuts[search_engine.name] }}</td>
                                     <th>{{ search_engine.name }}</th>
                                     <td class="onoff-checkbox">
                                         {{ checkbox_toggle('engine_' + search_engine.name|replace(' ', '_') + '__' + categ|replace(' ', '_'), (search_engine.name, categ) in disabled_engines) }}
@@ -284,7 +299,7 @@
         {{ _("These cookies serve your sole convenience, we don't use these cookies to track you.") }}
         </p>
         <p style="margin:20px 0;">{{ _('Search URL of the currently saved preferences') }} <small class="text-muted">({{ _('Note: specifying custom settings in the search URL can reduce privacy by leaking data to the clicked result sites.') }})</small>:<br/>
-          <input readonly="" class="form-control select-all-on-click cursor-text" type="url" value="{{ url_for('index', _external=True) }}?{{ preferences_url_params|e }}{% raw %}&amp;q=%s{% endraw %}">
+          <input readonly="" class="form-control select-all-on-click cursor-text" type="url" value="{{ url_for('index', _external=True) }}?preferences={{ preferences_url_params|e }}{% raw %}&amp;q=%s{% endraw %}">
         </p>
 
         <input type="submit" class="btn btn-primary" value="{{ _('save') }}" />
