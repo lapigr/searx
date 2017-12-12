@@ -376,6 +376,8 @@ def render(template_name, override_theme=None, **kwargs):
 
     kwargs['unicode'] = unicode
 
+    kwargs['preferences'] = request.preferences
+
     kwargs['scripts'] = set()
     for plugin in request.user_plugins:
         for script in plugin.js_dependencies:
@@ -628,8 +630,8 @@ def autocompleter():
     if len(raw_results) <= 3 and completer:
         # get language from cookie
         language = request.preferences.get_value('language')
-        if not language or language == 'all':
-            language = 'en'
+        if not language:
+            language = settings['search']['language']
         else:
             language = language.split('-')[0]
         # run autocompletion
