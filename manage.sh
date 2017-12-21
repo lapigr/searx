@@ -1,15 +1,15 @@
 #!/bin/sh
 
 BASE_DIR="$(dirname -- "`readlink -f -- "$0"`")"
-export PATH="$BASE_DIR/node_modules/.bin":$PATH
+#export PATH="$BASE_DIR/node_modules/.bin":$PATH
 
 # the script can be sourced to update the PATH
 # see https://stackoverflow.com/questions/2683279/how-to-detect-if-a-script-is-being-sourced
-if [ $_ != $0 ]; then
-    unset BASE_DIR
-    # sourced : exit now
-    return
-fi
+#if [ $_ != $0 ]; then
+#    unset BASE_DIR
+#    # sourced : exit now
+#    return
+#fi
 
 # subshell
 PYTHONPATH="$BASE_DIR"
@@ -17,7 +17,7 @@ SEARX_DIR="$BASE_DIR/searx"
 ACTION="$1"
 
 cd -- "$BASE_DIR"
-set -e
+#set -e
 
 #
 # Python

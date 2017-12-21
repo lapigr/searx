@@ -1,5 +1,5 @@
 general:
-    debug : False # Debug mode, only for development
+    debug : True # Debug mode, only for development
     instance_name : "Pigtown Search" # displayed name
 
 search:
@@ -28,10 +28,10 @@ ui:
 #    key : your_morty_proxy_key
 
 outgoing: # communication with search engines
-    request_timeout : 2.0 # seconds
+    request_timeout : 4.0 # seconds
     useragent_suffix : "" # suffix of searx_useragent, could contain informations like an email address to the administrator
-    pool_connections : 100 # Number of different hosts
-    pool_maxsize : 12 # Number of simultaneous requests by host
+    pool_connections : 50 # Number of different hosts
+    pool_maxsize : 6 # Number of simultaneous requests by host
 # uncomment below section if you want to use a proxy
 # see http://docs.python-requests.org/en/latest/user/advanced/#proxies
 # SOCKS proxies are also supported: see http://docs.python-requests.org/en/master/user/advanced/#socks
@@ -271,18 +271,22 @@ engines:
   - name : google
     engine : google
     shortcut : go
+    disabled : True
 
   - name : google images
     engine : google_images
     shortcut : goi
+    disabled : True
 
   - name : google news
     engine : google_news
     shortcut : gon
+    disalbed : True
 
   - name : google videos
     engine : google_videos
     shortcut : gov
+    disabled : True
 
   - name : google scholar
     engine : xpath
@@ -571,7 +575,6 @@ engines:
     engine : startpage
     shortcut : sp
     timeout : 6.0
-    disabled : True
 
   - name : ixquick
     engine : startpage
