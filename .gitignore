@@ -17,6 +17,6 @@ setup.cfg
 .rnd
 node_modules/
 searx-ve/
-
+searx/settings.yml
 manage.sh
 .tx/
