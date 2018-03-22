@@ -66,6 +66,10 @@ engines:
     categories : science
     timeout : 4.0
 
+  - name : asksteem
+    engine : asksteem
+    shortcut : as
+
   - name : base
     engine : base
     shortcut : bs
@@ -212,6 +216,24 @@ engines:
   - name : fdroid
     engine : fdroid
     shortcut : fd
+    disabled : True
+
+  - name : findx
+    engine : findx
+    shortcut : fx
+    categories : general
+    disabled : True
+
+  - name : findx images
+    engine : findx
+    shortcut : fxi
+    categories : images
+    disabled : True
+
+  - name : findx videos
+    engine : findx
+    shortcut : fxv
+    categories : videos
     disabled : True
 
   - name : flickr
@@ -402,15 +424,7 @@ engines:
     shortcut : lo
 
   - name : microsoft academic
-    engine : json_engine
-    paging : True
-    search_url : https://academic.microsoft.com/api/search/GetEntityResults?query=%40{query}%40&filters=&offset={pageno}&limit=8&correlationId=undefined
-    results_query : results
-    url_query : u
-    title_query : dn
-    content_query : d
-    page_size : 8
-    first_page_num : 0
+    engine : microsoft_academic
     categories : science
     shortcut : ma
 
@@ -722,6 +736,7 @@ locales:
     eo : Esperanto (Esperanto)
     es : Español (Spanish)
     fi : Suomi (Finnish)
+    fil : Wikang Filipino (Filipino)
     fr : Français (French)
     he : עברית (Hebrew)
     hr : Hrvatski (Croatian)
@@ -729,6 +744,7 @@ locales:
     it : Italiano (Italian)
     ja : 日本語 (Japanese)
     nl : Nederlands (Dutch)
+    pl : Polszczyzna (Polish)
     pt : Português (Portuguese)
     pt_BR : Português (Portuguese_Brazil)
     ro : Română (Romanian)
@@ -740,6 +756,7 @@ locales:
     tr : Türkçe (Turkish)
     uk : українська мова (Ukrainian)
     zh : 中文 (Chinese)
+    zh_TW : 國語 (Taiwanese Mandarin)
 
 doi_resolvers :
   oadoi.org : 'https://oadoi.org/'
