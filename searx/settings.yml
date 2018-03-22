@@ -11,7 +11,7 @@ server:
     port : 8888
     bind_address : "127.0.0.1" # address to listen on
     secret_key : "cafd3d5e676621f1af86d51def528e1e"  
-    base_url : https://pigtown.news/searx/  # Set custom base_url. Possible values: False or "https://your.custom.host/location/"
+    base_url : https://piggalywig.com/searx/  # Set custom base_url. Possible values: False or "https://your.custom.host/location/"
     image_proxy : False # Proxying image results through searx
     http_protocol_version : "1.0"  # 1.0 and 1.1 are supported
 
