@@ -13,7 +13,7 @@ from dateutil import parser
 from searx.url_utils import urlencode
 
 # engine dependent config
-categories = ['videos', 'music']
+categories = ['general', 'videos', 'music']
 paging = False
 language_support = True
 api_key = None

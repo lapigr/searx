@@ -248,14 +248,15 @@ class ResultContainer(object):
 
     def order_results(self):
         for result in self._merged_results:
-            score = result_score(result)
-            result['score'] = score
-
-            # TODO engine+infobox
-            # scratch that, i'm thinkin a new settings field for urls to bring to top/highlight would be better
-            if ("runescape.wikia" in result['url'] or "pathofexile.gamepedia.com" in result['url']):
-                result['score'] += 2
-            with RLock():
+           score = result_score(result)
+           result['score'] = score
+            
+           #TODO an actually good way to handle this
+           score_upgrades = [["runescape.wikia",2], ["pathofexile.gamepedia.com",2], ["youtube.com",1]]
+           for entry in score_upgrades:
+               if (entry[0] in result['url']):
+                   result['score'] += entry[1]
+           with RLock():
                 for result_engine in result['engines']:
                     engines[result_engine].stats['score_count'] += score
 
